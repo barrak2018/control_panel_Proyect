@@ -9,7 +9,9 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QPushButton,
     QDial,
-    QLabel
+    QLabel,
+    QGridLayout,
+    QLCDNumber
 )
 from serial_engine import Serial_Engine
 
@@ -54,6 +56,8 @@ class COM_module(QWidget):
         
         # Configurar el diseño del módulo
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         layout.addWidget(self.port_combobox)
         layout.addWidget(self.label)
         layout.addWidget(self.connect_button)
@@ -106,17 +110,84 @@ class COM_module(QWidget):
 
 
 class ServoControl(QWidget):
-    def __init__(self, serial_engine:Serial_Engine, title:str = "Control de servo"):
+    def __init__(self, serial_engine:Serial_Engine, title:str = "Control de servo", command:str = "servo"):
         super().__init__()
         self.serial = serial_engine
 
          
+        label = QLabel()
+        label.setText(title)
 
+        # cero button
+        cero = QPushButton()
+        cero.setText("0°")
+        cero.released.connect(lambda: self.serial.send(f"{command}0"))
 
-        self.label = QLabel()
-    def closeEvent(self, a0):
-        self.serial.disconnect_port()
-        return super().closeEvent(a0)
+        # 180 button
+        boton180 = QPushButton()
+        boton180.setText("180°")
+        boton180.released.connect(lambda: self.serial.send(f"{command}180"))
+
+        # 45 button
+        boton45 = QPushButton()
+        boton45.setText("45°")
+        boton45.released.connect(lambda: self.serial.send(f"{command}45"))
+
+        # 135 button
+        boton135 = QPushButton()
+        boton135.setText("135°")
+        boton135.released.connect(lambda: self.serial.send(f"{command}135"))
+
+        # 90 button
+        boton90 = QPushButton()
+        boton90.setText("90°")
+        boton90.released.connect(lambda: self.serial.send(f"{command}90"))
+
+        # dial
+        dial  = QDial()
+        dial.setRange(0,180)
+        dial.setNotchesVisible(True)
+
+        grados = QLabel("None")
+
+        
+        
+
+        # grupo de 4 botones 
+        container2Layout = QGridLayout()
+        container2Layout.setContentsMargins(0, 0, 0, 0)
+        container2Layout.setSpacing(0)
+        container2Layout.addWidget(boton45, 0, 0)
+        container2Layout.addWidget(boton135, 0, 1)
+        container2Layout.addWidget(cero, 1, 0)
+        container2Layout.addWidget(boton180, 1, 1)
+        container2 = QWidget()
+        container2.setLayout(container2Layout)
+
+        # grupo completo de botones
+        container = QWidget()
+        containerLayout = QVBoxLayout()
+        containerLayout.setContentsMargins(0, 0, 0, 0)
+        containerLayout.setSpacing(0)
+        containerLayout.addWidget(label)
+        containerLayout.addWidget(grados)
+        containerLayout.addWidget(dial)
+        containerLayout.addWidget(boton90)
+        containerLayout.addWidget(container2)
+
+        self.setLayout(containerLayout)
+        
+
+        
+    def on_dial_move():
+        pass
+
+    
+    def write(self):
+        pass
+        
+
+    
         
 
 
@@ -137,12 +208,14 @@ class main_window(QMainWindow):
 
 
         self.COM_module = COM_module(self.serial_engine)
+        self.servo = ServoControl(self.serial_engine)
         
 
 
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.COM_module)
+        main_layout.addWidget(self.servo)
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
