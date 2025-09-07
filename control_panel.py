@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QDial,
     QLabel,
     QGridLayout,
+    QGroupBox
 )
 from serial_engine import Serial_Engine
 
@@ -101,21 +102,15 @@ class COM_module(QWidget):
         self.connect_button.setChecked(False)
         #self.label_color = "red"
 
-            
 
-
-
-
-
-
-class ServoControl(QWidget):
+class Servo_control(QGroupBox):
     def __init__(self, serial_engine:Serial_Engine, title:str = "Control de servo", command:str = "servo"):
         super().__init__()
         self.serial = serial_engine
         self.serial.connection_status.connect(self.connection_update_protocol)
          
-        label = QLabel()
-        label.setText(title)
+        
+        self.setTitle(title)
 
         # indicador de Posicion
         self.grados = QLabel("None")
@@ -182,12 +177,14 @@ class ServoControl(QWidget):
         containerLayout = QVBoxLayout()
         containerLayout.setContentsMargins(0, 0, 0, 0)
         containerLayout.setSpacing(0)
-        containerLayout.addWidget(label)
+        containerLayout.setContentsMargins(10, 10, 10, 10)
+        
         containerLayout.addWidget(self.grados)
         containerLayout.addWidget(self.dial)
         containerLayout.addWidget(self.boton90)
         containerLayout.addWidget(container2)
-
+        
+        self.setFixedSize(242, 215)
         self.setLayout(containerLayout)
         
         
@@ -211,7 +208,27 @@ class ServoControl(QWidget):
             self.grados.setText("None")
         
     
+class Ligh_control(QGroupBox):
+    def __init__(self, serial_engine:Serial_Engine, title:str = "Control de Luces", command:str = "led"):
+        super().__init__()
+        self.setTitle(title)
+        serial_engine.connection_status.connect(self.connection_update_protocol)
+        label = QLabel(title)
+        self.boton = QPushButton("On/Off")
+        self.boton.released.connect(lambda: serial_engine.send(f"{command}"))
+        self.boton.setEnabled(False)
 
+        layout = QHBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(self.boton)
+        self.setFixedSize(242, 215)
+        self.setLayout(layout)
+
+    def connection_update_protocol (self, status:bool):
+        if status:
+            self.boton.setEnabled(True)
+        else:
+            self.boton.setEnabled(False)
 
     
 
@@ -236,13 +253,14 @@ class main_window(QMainWindow):
 
 
         self.COM_module = COM_module(self.serial_engine)
-        self.servo = ServoControl(self.serial_engine)
-        self.servo2 = ServoControl(self.serial_engine, "Servo 2", "servoDOS" )
+        self.servo = Servo_control(self.serial_engine)
+        self.luz = Ligh_control(self.serial_engine, "luz de la placa")
         
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.COM_module)
         main_layout.addWidget(self.servo)
-        main_layout.addWidget(self.servo2)
+        main_layout.addWidget(self.luz)
+        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
