@@ -209,26 +209,53 @@ class Servo_control(QGroupBox):
         
     
 class Ligh_control(QGroupBox):
-    def __init__(self, serial_engine:Serial_Engine, title:str = "Control de Luces", command:str = "led"):
+    '''
+    Genera una botonera capaz de enviar comandos por comunicacion serial
+    REQUIERE Serial_Engine!!!!!
+    Args:
+        serial_engine (Serial_Engine): instancia de la clase Serial_engine en uso
+        title (str): Titulo Principal de panel
+        buttons (list): lista 2d con par ordenado de titulo y comando {debe ser de esta manera: [["titulo1", "comando1"],["titulo2", "comando2"]]}
+
+    '''
+    def __init__(self, serial_engine:Serial_Engine, title:str = "Control de Luces", buttons: list = [["titulo", "comando"]]):
         super().__init__()
         self.setTitle(title)
+        self.serial = serial_engine
         serial_engine.connection_status.connect(self.connection_update_protocol)
-        label = QLabel(title)
-        self.boton = QPushButton("On/Off")
-        self.boton.released.connect(lambda: serial_engine.send(f"{command}"))
-        self.boton.setEnabled(False)
+        self.buttons_list = []
+        for titulo, comando in buttons:
+            boton = QPushButton(titulo)
+            print(comando)
+            boton.released.connect(lambda com = comando: serial_engine.send(com))
+            boton.setEnabled(False)
+            self.buttons_list.append(boton)
 
-        layout = QHBoxLayout()
-        layout.addWidget(label)
-        layout.addWidget(self.boton)
-        self.setFixedSize(242, 215)
+
+        
+        layout = QGridLayout()
+        x = 0
+        y = 0
+        for widget in self.buttons_list:
+            layout.addWidget(widget, y, x)
+            x += 1
+            if x > 1:
+                x = 0
+                y += 1
+            
+
+
+        self.setMaximumWidth(242)
         self.setLayout(layout)
-
+   
     def connection_update_protocol (self, status:bool):
         if status:
-            self.boton.setEnabled(True)
+            for boton in self.buttons_list:
+                boton.setEnabled(True)
         else:
-            self.boton.setEnabled(False)
+            for boton in self.buttons_list:
+                boton.setEnabled(False)
+                
 
     
 
@@ -254,7 +281,8 @@ class main_window(QMainWindow):
 
         self.COM_module = COM_module(self.serial_engine)
         self.servo = Servo_control(self.serial_engine)
-        self.luz = Ligh_control(self.serial_engine, "luz de la placa")
+        botones = [["led 1", "led1"],["led 2", "led2"], ["led 3", "led3"]]
+        self.luz = Ligh_control(self.serial_engine, "luz de la placa", botones)
         
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.COM_module)
