@@ -225,7 +225,6 @@ class Ligh_control(QGroupBox):
         self.buttons_list = []
         for titulo, comando in buttons:
             boton = QPushButton(titulo)
-            print(comando)
             boton.released.connect(lambda com = comando: serial_engine.send(com))
             boton.setEnabled(False)
             self.buttons_list.append(boton)
