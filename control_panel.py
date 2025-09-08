@@ -175,7 +175,6 @@ class Servo_control(QGroupBox):
         # grupo completo de botones
         container = QWidget()
         containerLayout = QVBoxLayout()
-        containerLayout.setContentsMargins(0, 0, 0, 0)
         containerLayout.setSpacing(0)
         containerLayout.setContentsMargins(10, 10, 10, 10)
         
@@ -234,6 +233,8 @@ class Ligh_control(QGroupBox):
 
         
         layout = QGridLayout()
+        layout.setSpacing(0)
+        layout.setContentsMargins(10, 10, 10, 10)
         x = 0
         y = 0
         for widget in self.buttons_list:
@@ -288,7 +289,8 @@ class main_window(QMainWindow):
         main_layout.addWidget(self.COM_module)
         main_layout.addWidget(self.servo)
         main_layout.addWidget(self.luz)
-        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        # main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        main_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
