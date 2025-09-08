@@ -46,14 +46,13 @@ class COM_module(QWidget):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setFixedSize(95, 40)
 
-
         # Botón para conectar/desconectar
         self.connect_button = QPushButton()
         self.connect_button.setText("0/1")
         self.connect_button.setCheckable(True)
         self.connect_button.released.connect(self.connection_start)
         self.connect_button.setFixedHeight(40)
-        
+
         # Configurar el diseño del módulo
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -61,10 +60,10 @@ class COM_module(QWidget):
         layout.addWidget(self.port_combobox)
         layout.addWidget(self.label)
         layout.addWidget(self.connect_button)
-        
+
         self.setLayout(layout)
         self.setMaximumSize(370, 100)
-    
+
     def update_current_port(self, port):
         """Actualizar el puerto seleccionado."""
         self.current_port = port
@@ -86,7 +85,6 @@ class COM_module(QWidget):
     def conection_status_update_protocol(self, status:bool):
         """Actualizar el protocolo según el estado de conexión."""
         if status:
-            
             self.label.setText("Conectado")
             self.label.setStyleSheet("background-color: #57F527; border: 5px none #101010; font-weight: bold; border-radius: 5px;")
         else:
@@ -95,12 +93,11 @@ class COM_module(QWidget):
         if not status: 
             self.desconection_protocol()
         #print("Protocolo de actualización de estado de conexión activado.")
-      
+
     def desconection_protocol(self):
         """Protocolo para manejar la desconexión. de cara a visuales"""
         self.serial.disconnect_port()
         self.connect_button.setChecked(False)
-        #self.label_color = "red"
 
 
 class Servo_control(QGroupBox):
@@ -108,8 +105,7 @@ class Servo_control(QGroupBox):
         super().__init__()
         self.serial = serial_engine
         self.serial.connection_status.connect(self.connection_update_protocol)
-         
-        
+
         self.setTitle(title)
 
         # indicador de Posicion
@@ -159,8 +155,6 @@ class Servo_control(QGroupBox):
         self.dial.valueChanged.connect(lambda valor : self.grados.setText(f"{valor}°"))
         self.dial.setEnabled(False)
 
-        
-
         # grupo de 4 botones 
         container2Layout = QGridLayout()
         container2Layout.setContentsMargins(0, 0, 0, 0)
@@ -177,7 +171,6 @@ class Servo_control(QGroupBox):
         containerLayout = QVBoxLayout()
         containerLayout.setSpacing(0)
         containerLayout.setContentsMargins(10, 10, 10, 10)
-        
         containerLayout.addWidget(self.grados)
         containerLayout.addWidget(self.dial)
         containerLayout.addWidget(self.boton90)
@@ -205,8 +198,8 @@ class Servo_control(QGroupBox):
             self.dial.setEnabled(False)
             self.dial.setValue(0)
             self.grados.setText("None")
-        
-    
+
+
 class Ligh_control(QGroupBox):
     '''
     Genera una botonera capaz de enviar comandos por comunicacion serial
@@ -229,8 +222,6 @@ class Ligh_control(QGroupBox):
             boton.setEnabled(False)
             self.buttons_list.append(boton)
 
-
-        
         layout = QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -242,8 +233,6 @@ class Ligh_control(QGroupBox):
             if x > 1:
                 x = 0
                 y += 1
-            
-
 
         self.setMaximumWidth(242)
         self.setLayout(layout)
@@ -255,18 +244,7 @@ class Ligh_control(QGroupBox):
         else:
             for boton in self.buttons_list:
                 boton.setEnabled(False)
-                
 
-    
-
-    
-        
-
-
-    
-
-        
-    
 
 class main_window(QMainWindow):
     def __init__(self):
@@ -299,6 +277,7 @@ class main_window(QMainWindow):
         self.serial_engine_thread.quit()
         self.serial_engine_thread.wait()
         event.accept()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
